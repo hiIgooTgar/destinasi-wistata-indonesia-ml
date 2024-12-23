@@ -20,7 +20,7 @@ from google.colab import drive
 drive.mount('/content/drive')
 
 # Membaca file CSV
-file_path = '/content/drive/My Drive/ml-wisata-halal/destinasi-wisata-halal.csv'
+file_path = '/content/drive/My Drive/ml-destinasi-wisata/destinasi-wisata-indonesia.csv'
 try:
     data = pd.read_csv(file_path)
     print("File berhasil dibaca.")
