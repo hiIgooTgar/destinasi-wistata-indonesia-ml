@@ -79,14 +79,6 @@ if 'Category' in data.columns and 'Rating' in data.columns:
     average_rating = data.groupby('Category')['Rating'].mean().reset_index()
 
     # Mengganti nilai kategori numerik dengan label deskriptif
-    category_labels = {
-        0: 'Bahari',
-        1: 'Budaya',
-        2: 'Cagar Alam',
-        3: 'Pusat Perbelanjaan',
-        4: 'Taman Hiburan',
-        5: 'Tempat Ibadah'
-    }
     average_rating['Category'] = average_rating['Category'].map(category_labels)
 
     # Membuat visualisasi bar chart
@@ -95,8 +87,10 @@ if 'Category' in data.columns and 'Rating' in data.columns:
         x='Category',
         y='Rating',
         data=average_rating,
-        palette='viridis'
+        palette='viridis',
+        hue='Category'
     )
+    plt.legend([], [], frameon=False)  # Hilangkan legend
     plt.title('Rata-Rata Rating per Kategori Tempat Wisata', fontsize=14)
     plt.xlabel('Kategori Tempat Wisata', fontsize=12)
     plt.ylabel('Rata-Rata Rating', fontsize=12)
