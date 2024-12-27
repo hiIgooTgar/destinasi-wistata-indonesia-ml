@@ -48,14 +48,62 @@ else:
 for col in data.select_dtypes(include=['object']).columns:
     data[col] = data[col].astype('category').cat.codes
 
-# 2. Exploratory Data Analysis
+# Buat mapping untuk label kategori
+category_labels = {
+    0: 'Bahari',
+    1: 'Budaya',
+    2: 'Cagar Alam',
+    3: 'Pusat Perbelanjaan',
+    4: 'Taman Hiburan',
+    5: 'Tempat Ibadah'
+}
+
+# Ganti nilai numerik di kolom 'Category' dengan label deskriptif
 if 'Category' in data.columns:
+    data['Category_Label'] = data['Category'].map(category_labels)
+
+    # Visualisasi distribusi kategori
     plt.figure(figsize=(10, 6))
-    sns.countplot(x='Category', data=data)
+    sns.countplot(x='Category_Label', data=data, order=['Bahari', 'Budaya', 'Cagar Alam', 'Pusat Perbelanjaan', 'Taman Hiburan', 'Tempat Ibadah'])
     plt.title('Distribusi Kategori Tempat Wisata')
+    plt.xticks(rotation=45)  # Rotasi label agar tidak tumpang tindih
+    plt.xlabel('Kategori Tempat Wisata')
+    plt.ylabel('Jumlah')
     plt.show()
 else:
-    print("Kolom 'Category' tidak ditemukan untuk analisis distribusi.")
+    print("Kolom 'Category' tidak ditemukan dalam dataset.")
+
+# Pastikan dataset memiliki kolom 'Category' dan 'Rating'
+if 'Category' in data.columns and 'Rating' in data.columns:
+    # Menghitung rata-rata rating per kategori
+    average_rating = data.groupby('Category')['Rating'].mean().reset_index()
+
+    # Mengganti nilai kategori numerik dengan label deskriptif
+    category_labels = {
+        0: 'Bahari',
+        1: 'Budaya',
+        2: 'Cagar Alam',
+        3: 'Pusat Perbelanjaan',
+        4: 'Taman Hiburan',
+        5: 'Tempat Ibadah'
+    }
+    average_rating['Category'] = average_rating['Category'].map(category_labels)
+
+    # Membuat visualisasi bar chart
+    plt.figure(figsize=(10, 6))
+    sns.barplot(
+        x='Category',
+        y='Rating',
+        data=average_rating,
+        palette='viridis'
+    )
+    plt.title('Rata-Rata Rating per Kategori Tempat Wisata', fontsize=14)
+    plt.xlabel('Kategori Tempat Wisata', fontsize=12)
+    plt.ylabel('Rata-Rata Rating', fontsize=12)
+    plt.xticks(rotation=45)  # Rotasi label kategori untuk lebih jelas
+    plt.show()
+else:
+    print("Kolom 'Category' atau 'Rating' tidak ditemukan dalam dataset.")
 
 if 'Rating' in data.columns:
     plt.figure(figsize=(10, 6))
@@ -65,11 +113,37 @@ if 'Rating' in data.columns:
 else:
     print("Kolom 'Rating' tidak ditemukan untuk analisis distribusi.")
 
+# Verifikasi kolom harga tiket
+if 'Price' in data.columns:
+    # Jika harga dalam bentuk string, konversi ke numerik
+    try:
+        data['Price'] = pd.to_numeric(data['Price'], errors='coerce')
+    except Exception as e:
+        print(f"Terjadi kesalahan saat mengonversi kolom 'Price': {e}")
+
+    # Hilangkan data dengan harga tiket kosong atau tidak valid
+    valid_price_data = data.dropna(subset=['Price'])
+
+    # Plot distribusi harga tiket
+    plt.figure(figsize=(12, 6))
+    sns.histplot(valid_price_data['Price'], bins=20, kde=True, color='blue')
+    plt.title('Distribusi Harga Tiket Tempat Wisata', fontsize=16)
+    plt.xlabel('Harga Tiket (dalam satuan mata uang)', fontsize=12)
+    plt.ylabel('Frekuensi', fontsize=12)
+    plt.grid(True)
+    plt.show()
+else:
+    print("Kolom 'Price' tidak ditemukan dalam dataset.")
+
 # 3. Machine Learning - Prediksi Kategori Berdasarkan Fitur Lain
 if 'Category' in data.columns:
     # Memisahkan fitur dan target
-    X = data.drop(columns=['Category'])
+    X = data.drop(columns=['Category', 'Category_Label'])  # Jangan lupa drop kolom kategori deskriptif
     y = data['Category']
+
+    # Pastikan semua kolom dalam X adalah numerik
+    for col in X.select_dtypes(include=['object', 'category']).columns:
+        X[col] = X[col].astype('category').cat.codes
 
     # Membagi data menjadi training dan testing
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
