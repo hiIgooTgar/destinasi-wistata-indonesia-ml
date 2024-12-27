@@ -48,6 +48,7 @@ else:
 for col in data.select_dtypes(include=['object']).columns:
     data[col] = data[col].astype('category').cat.codes
 
+# 2. Exploratory Data Analysis
 # Buat mapping untuk label kategori
 category_labels = {
     0: 'Bahari',
@@ -99,6 +100,7 @@ if 'Category' in data.columns and 'Rating' in data.columns:
 else:
     print("Kolom 'Category' atau 'Rating' tidak ditemukan dalam dataset.")
 
+# Menghitung rata-rata rating keseluruhan kategori
 if 'Rating' in data.columns:
     plt.figure(figsize=(10, 6))
     sns.histplot(data['Rating'], kde=True, bins=20)
